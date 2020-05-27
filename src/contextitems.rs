@@ -9,7 +9,7 @@ use fut::ActorFuture;
 use handler::{Handler, Message, MessageResponse};
 
 pub(crate) struct ActorWaitItem<A: Actor>(
-    Box<ActorFuture<Item = (), Error = (), Actor = A>>,
+    Box<dyn ActorFuture<Item = (), Error = (), Actor = A>>,
 );
 
 impl<A> ActorWaitItem<A>

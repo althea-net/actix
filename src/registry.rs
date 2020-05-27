@@ -21,7 +21,7 @@ use context::Context;
 use supervisor::Supervisor;
 use system::System;
 
-type AnyMap = HashMap<TypeId, Box<Any>, BuildHasherDefault<FnvHasher>>;
+type AnyMap = HashMap<TypeId, Box<dyn Any>, BuildHasherDefault<FnvHasher>>;
 
 /// Actors registry
 ///
@@ -222,7 +222,7 @@ pub struct SystemRegistry {
     registry: InnerRegistry,
 }
 
-type AnyMapSend = HashMap<TypeId, Box<Any + Send>, BuildHasherDefault<FnvHasher>>;
+type AnyMapSend = HashMap<TypeId, Box<dyn Any + Send>, BuildHasherDefault<FnvHasher>>;
 type InnerRegistry = Arc<ReentrantMutex<RefCell<AnyMapSend>>>;
 
 /// Trait defines system's service.

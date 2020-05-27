@@ -209,7 +209,7 @@ where
     M: Message + Send,
     M::Result: Send,
 {
-    tx: Box<Sender<M>>,
+    tx: Box<dyn Sender<M>>,
 }
 
 impl<M> Recipient<M>
@@ -218,7 +218,7 @@ where
     M::Result: Send,
 {
     /// Creates a new recipient.
-    pub(crate) fn new(tx: Box<Sender<M>>) -> Recipient<M> {
+    pub(crate) fn new(tx: Box<dyn Sender<M>>) -> Recipient<M> {
         Recipient { tx }
     }
 

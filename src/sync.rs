@@ -184,7 +184,7 @@ where
     queue: cb_channel::Receiver<Envelope<A>>,
     stopping: bool,
     state: ActorState,
-    factory: Arc<Fn() -> A>,
+    factory: Arc<dyn Fn() -> A>,
 }
 
 impl<A> SyncContext<A>
@@ -192,7 +192,7 @@ where
     A: Actor<Context = Self>,
 {
     /// Create new SyncContext
-    fn new(factory: Arc<Fn() -> A>, queue: cb_channel::Receiver<Envelope<A>>) -> Self {
+    fn new(factory: Arc<dyn Fn() -> A>, queue: cb_channel::Receiver<Envelope<A>>) -> Self {
         let act = factory();
         Self {
             queue,

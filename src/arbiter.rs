@@ -23,7 +23,7 @@ thread_local!(
     static NAME: RefCell<Option<String>> = RefCell::new(None);
     static REG: RefCell<Option<Registry>> = RefCell::new(None);
     static RUNNING: Cell<bool> = Cell::new(false);
-    static Q: RefCell<Vec<Box<Future<Item=(), Error=()>>>> = RefCell::new(Vec::new());
+    static Q: RefCell<Vec<Box<dyn Future<Item=(), Error=()>>>> = RefCell::new(Vec::new());
 );
 
 /// An event loop controller.

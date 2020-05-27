@@ -39,10 +39,10 @@ pub trait Message {
 pub struct MessageResult<M: Message>(pub M::Result);
 
 /// A specialized actor future for asynchronous message handling.
-pub type ResponseActFuture<A, I, E> = Box<ActorFuture<Item = I, Error = E, Actor = A>>;
+pub type ResponseActFuture<A, I, E> = Box<dyn ActorFuture<Item = I, Error = E, Actor = A>>;
 
 /// A specialized future for asynchronous message handling.
-pub type ResponseFuture<I, E> = Box<Future<Item = I, Error = E>>;
+pub type ResponseFuture<I, E> = Box<dyn Future<Item = I, Error = E>>;
 
 /// A trait that defines a message response channel.
 pub trait ResponseChannel<M: Message>: 'static {
@@ -172,7 +172,7 @@ where
 
 enum ResponseTypeItem<I, E> {
     Result(Result<I, E>),
-    Fut(Box<Future<Item = I, Error = E>>),
+    Fut(Box<dyn Future<Item = I, Error = E>>),
 }
 
 /// Helper type for representing different type of message responses
@@ -236,7 +236,7 @@ where
 
 enum ActorResponseTypeItem<A, I, E> {
     Result(Result<I, E>),
-    Fut(Box<ActorFuture<Item = I, Error = E, Actor = A>>),
+    Fut(Box<dyn ActorFuture<Item = I, Error = E, Actor = A>>),
 }
 
 /// A helper type for representing different types of message responses.

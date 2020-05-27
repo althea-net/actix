@@ -13,7 +13,7 @@ impl Message for StopArbiter {
 }
 
 /// Start actor in arbiter's thread
-pub struct StartActor<A: Actor>(Box<FnBox<A>>);
+pub struct StartActor<A: Actor>(Box<dyn FnBox<A>>);
 
 impl<A: Actor> Message for StartActor<A> {
     type Result = Addr<A>;
@@ -75,7 +75,7 @@ impl<A: Actor, F: FnOnce() -> Addr<A> + Send + 'static> FnBox<A> for F {
 /// }
 /// fn main() {}
 /// ```
-pub struct Execute<I: Send + 'static = (), E: Send + 'static = ()>(Box<FnExec<I, E>>);
+pub struct Execute<I: Send + 'static = (), E: Send + 'static = ()>(Box<dyn FnExec<I, E>>);
 
 /// Execute message response
 impl<I: Send, E: Send> Message for Execute<I, E> {
