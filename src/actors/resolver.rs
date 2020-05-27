@@ -170,7 +170,9 @@ impl Resolver {
     }
 
     fn start_resolver<F>(
-        &self, ctx: &mut <Self as Actor>::Context, parts: (AsyncResolver, F),
+        &self,
+        ctx: &mut <Self as Actor>::Context,
+        parts: (AsyncResolver, F),
     ) -> AsyncResolver
     where
         F: 'static + Future<Item = (), Error = ()>,
@@ -196,12 +198,12 @@ impl Actor for Resolver {
                 Ok(resolver) => self.start_resolver(ctx, resolver),
                 Err(err) => {
                     warn!("Can not create system dns resolver: {}", err);
+                    let mut opts = ResolverOpts::default();
+                    opts.attempts = 1;
+                    opts.timeout = Duration::from_secs(1);
                     self.start_resolver(
                         ctx,
-                        AsyncResolver::new(
-                            ResolverConfig::default(),
-                            ResolverOpts::default(),
-                        ),
+                        AsyncResolver::new(ResolverConfig::default(), opts),
                     )
                 }
             }
@@ -218,9 +220,13 @@ impl SystemService for Resolver {}
 
 impl Default for Resolver {
     fn default() -> Resolver {
+        let config = ResolverConfig::default();
+        let mut opts = ResolverOpts::default();
+        opts.attempts = 1;
+        opts.timeout = Duration::from_secs(1);
         Resolver {
             resolver: None,
-            cfg: None,
+            cfg: Some((config, opts)),
             err: None,
         }
     }
@@ -252,7 +258,8 @@ impl Handler<Connect> for Resolver {
                 msg.name,
                 msg.port.unwrap_or(0),
                 self.resolver.as_ref().unwrap(),
-            ).and_then(move |addrs, _, _| TcpConnector::with_timeout(addrs, timeout)),
+            )
+            .and_then(move |addrs, _, _| TcpConnector::with_timeout(addrs, timeout)),
         )
     }
 }
@@ -278,7 +285,9 @@ struct ResolveFut {
 
 impl ResolveFut {
     pub fn new<S: AsRef<str>>(
-        addr: S, port: u16, resolver: &AsyncResolver,
+        addr: S,
+        port: u16,
+        resolver: &AsyncResolver,
     ) -> ResolveFut {
         // try to parse as a regular SocketAddr first
         if let Ok(addr) = addr.as_ref().parse() {
@@ -349,7 +358,9 @@ impl ActorFuture for ResolveFut {
     type Actor = Resolver;
 
     fn poll(
-        &mut self, _: &mut Resolver, _: &mut Context<Resolver>,
+        &mut self,
+        _: &mut Resolver,
+        _: &mut Context<Resolver>,
     ) -> Poll<Self::Item, Self::Error> {
         if let Some(err) = self.error.take() {
             Err(err)
@@ -406,7 +417,9 @@ impl ActorFuture for TcpConnector {
     type Actor = Resolver;
 
     fn poll(
-        &mut self, _: &mut Resolver, _: &mut Context<Resolver>,
+        &mut self,
+        _: &mut Resolver,
+        _: &mut Context<Resolver>,
     ) -> Poll<Self::Item, Self::Error> {
         // timeout
         if let Ok(Async::Ready(_)) = self.timeout.poll() {
